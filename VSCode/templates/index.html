@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Note Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        #note {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Real-Time Note Detection</h1>
+    <button id="listen">Listen</button>
+    <button id="stop">Stop</button>
+    <div id="note">Press "Listen" to start detecting notes.</div>
+
+    <script>
+        const listenBtn = document.getElementById('listen');
+        const stopBtn = document.getElementById('stop');
+        const noteDisplay = document.getElementById('note');
+
+        let noteInterval;
+
+        listenBtn.addEventListener('click', () => {
+            fetch('/listen', { method: 'POST' })
+                .then(() => {
+                    noteDisplay.textContent = "Listening...";
+                    noteInterval = setInterval(() => {
+                        fetch('/note')
+                            .then(response => response.text())
+                            .then(data => {
+                                noteDisplay.textContent = data;
+                            });
+                    }, 200);
+                });
+        });
+
+        stopBtn.addEventListener('click', () => {
+            fetch('/stop', { method: 'POST' })
+                .then(() => {
+                    clearInterval(noteInterval);
+                    noteDisplay.textContent = "Stopped.";
+                });
+        });
+    </script>
+</body>
+</html>
